@@ -1,0 +1,5 @@
+{
+  "name": "BitQuant Analysis",
+  "description": "A sophisticated Bitcoin Perpetual Contract probability calculator for daily traders. It utilizes AI to analyze market structure, funding rates, and liquidation heatmap data to estimate the likelihood of price targets.",
+  "requestFramePermissions": []
+}
