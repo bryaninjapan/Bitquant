@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { InputCard } from './components/InputCard';
 import { ResultCard } from './components/ResultCard';
-import { MarketData, Trend, AnalysisResult } from './types';
+import { MarketData, Trend, AnalysisResult, AssetType } from './types';
 import { calculateProbability } from './services/geminiService';
 import { useLanguage } from './contexts/LanguageContext';
 
@@ -10,6 +10,7 @@ const App: React.FC = () => {
   const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [asset, setAsset] = useState<AssetType>('BTC');
   
   // Default State
   const [marketData, setMarketData] = useState<MarketData>({
@@ -24,11 +25,16 @@ const App: React.FC = () => {
     additionalNotes: ''
   });
 
+  // Clear results and data when language or asset changes to avoid confusion
+  useEffect(() => {
+    setResult(null);
+  }, [language, asset]);
+
   const handleAnalyze = async () => {
     setLoading(true);
     setResult(null);
     try {
-      const data = await calculateProbability(marketData, language);
+      const data = await calculateProbability(marketData, language, asset);
       setResult(data);
     } catch (error) {
       alert(t.errorAPI);
@@ -39,7 +45,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout>
+    <Layout subtitle={`${asset}-PERP ${t.appSubtitle}`}>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Column: Input Dashboard */}
@@ -58,6 +64,8 @@ const App: React.FC = () => {
 
            <InputCard 
              data={marketData} 
+             asset={asset}
+             onAssetChange={setAsset}
              onChange={setMarketData} 
              onAnalyze={handleAnalyze}
              loading={loading}

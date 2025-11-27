@@ -12,6 +12,8 @@ export enum TradeDirection {
 
 export type Language = 'en' | 'zh-TW';
 
+export type AssetType = 'BTC' | 'ETH' | 'ADA';
+
 export interface MarketData {
   currentPrice: number;
   targetPrice: number;

@@ -1,16 +1,18 @@
 import React, { useRef } from 'react';
-import { MarketData, Trend } from '../types';
+import { MarketData, Trend, AssetType } from '../types';
 import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, ChartBarIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface InputCardProps {
   data: MarketData;
+  asset: AssetType;
+  onAssetChange: (asset: AssetType) => void;
   onChange: (data: MarketData) => void;
   onAnalyze: () => void;
   loading: boolean;
 }
 
-export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze, loading }) => {
+export const InputCard: React.FC<InputCardProps> = ({ data, asset, onAssetChange, onChange, onAnalyze, loading }) => {
   const { t } = useLanguage();
   const fileInputRef1 = useRef<HTMLInputElement>(null);
   const fileInputRef7 = useRef<HTMLInputElement>(null);
@@ -38,14 +40,50 @@ export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze,
 
   const isFormValid = data.currentPrice > 0 && data.targetPrice > 0;
 
+  const getPlaceholderPrice = () => {
+    switch (asset) {
+      case 'BTC': return "94000";
+      case 'ETH': return "3450";
+      case 'ADA': return "0.75";
+      default: return "0";
+    }
+  };
+
+  const getTargetPlaceholderPrice = () => {
+    switch (asset) {
+      case 'BTC': return "96500";
+      case 'ETH': return "3600";
+      case 'ADA': return "0.82";
+      default: return "0";
+    }
+  };
+
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-2xl relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-trade-accent to-purple-600"></div>
+      <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${asset === 'BTC' ? 'from-orange-500' : asset === 'ETH' ? 'from-indigo-500' : 'from-blue-600'} to-purple-600`}></div>
       
+      {/* Asset Selector */}
+      <div className="flex space-x-2 mb-6 border-b border-gray-800 pb-4">
+        {(['BTC', 'ETH', 'ADA'] as AssetType[]).map((type) => (
+            <button
+                key={type}
+                onClick={() => onAssetChange(type)}
+                className={`flex-1 py-2 text-xs font-bold font-mono rounded-lg transition-all duration-200 border ${
+                    asset === type 
+                    ? 'bg-gray-800 text-white border-gray-600 shadow-lg' 
+                    : 'bg-transparent text-gray-500 border-transparent hover:bg-gray-800/50 hover:text-gray-300'
+                }`}
+            >
+                {type}
+            </button>
+        ))}
+      </div>
+
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
           <ChartBarIcon className="w-5 h-5 text-gray-400" />
           {t.inputTitle}
+          <span className="text-xs font-mono text-gray-500 px-2 py-0.5 bg-gray-800 rounded border border-gray-700">{asset}-PERP</span>
         </h2>
         <span className="text-xs font-mono text-gray-500">{t.inputSubtitle}</span>
       </div>
@@ -63,7 +101,7 @@ export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze,
                 value={data.currentPrice || ''}
                 onChange={(e) => handleChange('currentPrice', parseFloat(e.target.value))}
                 className="w-full bg-gray-950 border border-gray-700 rounded-lg py-2.5 pl-8 pr-4 text-white font-mono focus:ring-2 focus:ring-trade-accent focus:border-transparent outline-none transition-all"
-                placeholder="例如: 94000"
+                placeholder={`e.g. ${getPlaceholderPrice()}`}
               />
             </div>
           </div>
@@ -77,7 +115,7 @@ export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze,
                 value={data.targetPrice || ''}
                 onChange={(e) => handleChange('targetPrice', parseFloat(e.target.value))}
                 className="w-full bg-gray-950 border border-gray-700 rounded-lg py-2.5 pl-8 pr-4 text-white font-mono focus:ring-2 focus:ring-trade-accent focus:border-transparent outline-none transition-all"
-                placeholder="例如: 96500"
+                placeholder={`e.g. ${getTargetPlaceholderPrice()}`}
               />
             </div>
             {data.currentPrice > 0 && data.targetPrice > 0 && (

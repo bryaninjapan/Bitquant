@@ -3,9 +3,10 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 interface LayoutProps {
   children: React.ReactNode;
+  subtitle?: string;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, subtitle }) => {
   const { t, language, setLanguage } = useLanguage();
 
   return (
@@ -21,7 +22,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               {t.appTitle}<span className="text-trade-accent">Quant</span>
             </span>
             <span className="hidden sm:inline-block ml-2 px-2 py-0.5 rounded text-xs font-mono bg-gray-800 text-gray-400 border border-gray-700">
-              {t.appSubtitle}
+              {subtitle || t.appSubtitle}
             </span>
           </div>
           <div className="flex items-center gap-4">

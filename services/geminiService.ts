@@ -1,15 +1,25 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { MarketData, AnalysisResult, Language } from "../types";
+import { MarketData, AnalysisResult, Language, AssetType } from "../types";
 
 const apiKey = process.env.API_KEY || '';
 
 const ai = new GoogleGenAI({ apiKey });
 
-export const calculateProbability = async (data: MarketData, language: Language): Promise<AnalysisResult> => {
+const getAssetName = (asset: AssetType, lang: Language) => {
+    const names = {
+        'BTC': { en: 'Bitcoin (BTC.D)', zh: '比特幣 (BTC)' },
+        'ETH': { en: 'Ethereum (ETH)', zh: '以太坊 (ETH)' },
+        'ADA': { en: 'Cardano (ADA)', zh: '卡達諾 (ADA)' }
+    };
+    return lang === 'zh-TW' ? names[asset].zh : names[asset].en;
+};
+
+export const calculateProbability = async (data: MarketData, language: Language, asset: AssetType): Promise<AnalysisResult> => {
   if (!apiKey) {
     throw new Error("API Key is missing. Please check your environment configuration.");
   }
 
+  const assetName = getAssetName(asset, language);
   const direction = data.targetPrice > data.currentPrice ? "Long/Up" : "Short/Down";
   const distance = Math.abs((data.targetPrice - data.currentPrice) / data.currentPrice * 100).toFixed(2);
 
@@ -17,11 +27,12 @@ export const calculateProbability = async (data: MarketData, language: Language)
   const parts: any[] = [];
 
   const systemInstructionZh = `
-    扮演一位專精於比特幣永續合約 (BTC.D) 的世界級量化加密貨幣分析師。
+    扮演一位專精於 ${assetName} 永續合約的世界級量化加密貨幣分析師。
     
-    你的任務是計算比特幣價格在接下來 24 小時內，從當前價格 $${data.currentPrice} 到達目標價格 $${data.targetPrice} (方向: ${direction}) 的概率 (0-100%)。
+    你的任務是計算 ${assetName} 價格在接下來 24 小時內，從當前價格 $${data.currentPrice} 到達目標價格 $${data.targetPrice} (方向: ${direction}) 的概率 (0-100%)。
 
     提供的市場背景數據:
+    - 資產: ${assetName}
     - 當前價格: $${data.currentPrice}
     - 目標價格: $${data.targetPrice} (距離: ${distance}%)
     - 當前資金費率: ${data.fundingRate}% (正值 = 多頭付給空頭, 負值 = 空頭付給多頭)
@@ -43,11 +54,12 @@ export const calculateProbability = async (data: MarketData, language: Language)
   `;
 
   const systemInstructionEn = `
-    Act as a world-class quantitative crypto analyst specializing in Bitcoin Perpetual Contracts (BTC.D).
+    Act as a world-class quantitative crypto analyst specializing in ${assetName} Perpetual Contracts.
 
-    Your task is to calculate the probability (0-100%) of Bitcoin price reaching the target price $${data.targetPrice} from current price $${data.currentPrice} (Direction: ${direction}) within the next 24 hours.
+    Your task is to calculate the probability (0-100%) of ${assetName} price reaching the target price $${data.targetPrice} from current price $${data.currentPrice} (Direction: ${direction}) within the next 24 hours.
 
     Market Context Data:
+    - Asset: ${assetName}
     - Current Price: $${data.currentPrice}
     - Target Price: $${data.targetPrice} (Distance: ${distance}%)
     - Funding Rate: ${data.fundingRate}% (Positive = Longs pay Shorts, Negative = Shorts pay Longs)
@@ -65,7 +77,7 @@ export const calculateProbability = async (data: MarketData, language: Language)
     3. Market Structure: Respect weekly trend but acknowledge intraday mean reversion.
     4. Provide a strict probability percentage based on the synthesis of these factors.
 
-    Return response in pure JSON format matching the schema, and write the content in English.
+    Return response in pure JSON format matching the schema, and write the content in English. DO NOT output any Chinese if the prompt is in English.
   `;
 
   const prompt = language === 'zh-TW' ? systemInstructionZh : systemInstructionEn;

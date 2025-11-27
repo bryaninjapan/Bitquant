@@ -3,7 +3,7 @@ import { Language } from '../types';
 export const translations = {
   en: {
     appTitle: "BitQuant",
-    appSubtitle: "BTC-PERP MODEL",
+    appSubtitle: "QUANT MODEL",
     systemOnline: "SYSTEM ONLINE",
     footerText: "POWERED BY GEMINI 2.5 FLASH • EDUCATIONAL PURPOSES ONLY • NOT FINANCIAL ADVICE",
     dataGuidanceTitle: "Data Guidance",
@@ -20,7 +20,7 @@ export const translations = {
     heatmap1Day: "1-Day Heatmap",
     heatmap7Day: "7-Day Heatmap",
     uploadPlaceholder: "Click to upload screenshot",
-    contextPlaceholder: "Or enter text description (e.g., Bright yellow liquidation band at 95k)",
+    contextPlaceholder: "Or enter text description (e.g., Bright yellow liquidation band at target)",
     calculateBtn: "Calculate Probability",
     calculatingBtn: "AI Calculation in Progress...",
     waitingTitle: "Awaiting Data",
@@ -37,11 +37,17 @@ export const translations = {
       "RangeBound": "Range Bound",
       "Choppy": "Choppy/Uncertain"
     },
+    assets: {
+      BTC: "Bitcoin (BTC)",
+      ETH: "Ethereum (ETH)",
+      ADA: "Cardano (ADA)"
+    },
+    assetSelector: "Select Asset Model",
     errorAPI: "Analysis failed. Please check API Key or input data."
   },
   'zh-TW': {
     appTitle: "BitQuant",
-    appSubtitle: "BTC-PERP 模型",
+    appSubtitle: "量化模型",
     systemOnline: "系統在線",
     footerText: "由 GEMINI 2.5 FLASH 驅動 • 僅供教育用途 • 非投資建議 (NOT FINANCIAL ADVICE)",
     dataGuidanceTitle: "數據指引 (Data Guidance)",
@@ -58,7 +64,7 @@ export const translations = {
     heatmap1Day: "1天清算圖 (1-Day Heatmap)",
     heatmap7Day: "7天清算圖 (7-Day Heatmap)",
     uploadPlaceholder: "點擊上傳截圖",
-    contextPlaceholder: "或輸入文字描述 (例如: 95k 有大量亮黃色清算帶)",
+    contextPlaceholder: "或輸入文字描述 (例如: 目標價位附近有大量亮黃色清算帶)",
     calculateBtn: "計算目標概率 (Calculate Probability)",
     calculatingBtn: "正在進行 AI 運算...",
     waitingTitle: "等待數據 (Awaiting Data)",
@@ -75,6 +81,12 @@ export const translations = {
       "RangeBound": "區間震盪 (Range Bound)",
       "Choppy": "不確定/波動 (Choppy)"
     },
+    assets: {
+      BTC: "比特幣 (BTC)",
+      ETH: "以太坊 (ETH)",
+      ADA: "卡達諾 (ADA)"
+    },
+    assetSelector: "選擇資產模型",
     errorAPI: "分析失敗，請檢查 API Key 或輸入數據。"
   }
 };
