@@ -38,7 +38,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Footer */}
       <footer className="border-t border-gray-800 bg-gray-950 py-6">
         <div className="max-w-7xl mx-auto px-4 text-center text-xs text-gray-600 font-mono">
-          <p>POWERED BY GEMINI 3 PRO PREVIEW • FOR EDUCATIONAL PURPOSES ONLY • NOT FINANCIAL ADVICE</p>
+          <p>POWERED BY GEMINI 2.5 FLASH • 僅供教育用途 • 非投資建議 (NOT FINANCIAL ADVICE)</p>
         </div>
       </footer>
     </div>

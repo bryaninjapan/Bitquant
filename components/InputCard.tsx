@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { MarketData, Trend } from '../types';
-import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { ArrowTrendingUpIcon, ArrowTrendingDownIcon, ChartBarIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface InputCardProps {
   data: MarketData;
@@ -10,9 +10,28 @@ interface InputCardProps {
 }
 
 export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze, loading }) => {
-  
-  const handleChange = (field: keyof MarketData, value: string | number) => {
+  const fileInputRef1 = useRef<HTMLInputElement>(null);
+  const fileInputRef7 = useRef<HTMLInputElement>(null);
+
+  const handleChange = (field: keyof MarketData, value: any) => {
     onChange({ ...data, [field]: value });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'heatmapImage1Day' | 'heatmapImage7Day') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleChange(field, reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = (field: 'heatmapImage1Day' | 'heatmapImage7Day') => {
+    handleChange(field, undefined);
+    if (field === 'heatmapImage1Day' && fileInputRef1.current) fileInputRef1.current.value = '';
+    if (field === 'heatmapImage7Day' && fileInputRef7.current) fileInputRef7.current.value = '';
   };
 
   const isFormValid = data.currentPrice > 0 && data.targetPrice > 0;
@@ -24,7 +43,7 @@ export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze,
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
           <ChartBarIcon className="w-5 h-5 text-gray-400" />
-          Market Parameters
+          市場參數輸入
         </h2>
         <span className="text-xs font-mono text-gray-500">INPUT DATA SOURCE</span>
       </div>
@@ -34,7 +53,7 @@ export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze,
         {/* Price Section */}
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-mono text-gray-400 mb-1">CURRENT PRICE (USD)</label>
+            <label className="block text-xs font-mono text-gray-400 mb-1">當前價格 (Current Price)</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
               <input
@@ -42,13 +61,13 @@ export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze,
                 value={data.currentPrice || ''}
                 onChange={(e) => handleChange('currentPrice', parseFloat(e.target.value))}
                 className="w-full bg-gray-950 border border-gray-700 rounded-lg py-2.5 pl-8 pr-4 text-white font-mono focus:ring-2 focus:ring-trade-accent focus:border-transparent outline-none transition-all"
-                placeholder="e.g. 64200"
+                placeholder="例如: 94000"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-gray-400 mb-1">TARGET PRICE (USD)</label>
+            <label className="block text-xs font-mono text-gray-400 mb-1">目標價格 (Target Price)</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
               <input
@@ -56,13 +75,13 @@ export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze,
                 value={data.targetPrice || ''}
                 onChange={(e) => handleChange('targetPrice', parseFloat(e.target.value))}
                 className="w-full bg-gray-950 border border-gray-700 rounded-lg py-2.5 pl-8 pr-4 text-white font-mono focus:ring-2 focus:ring-trade-accent focus:border-transparent outline-none transition-all"
-                placeholder="e.g. 65500"
+                placeholder="例如: 96500"
               />
             </div>
             {data.currentPrice > 0 && data.targetPrice > 0 && (
                <div className={`mt-2 text-xs font-mono flex items-center gap-1 ${data.targetPrice > data.currentPrice ? 'text-emerald-400' : 'text-rose-400'}`}>
                  {data.targetPrice > data.currentPrice ? <ArrowTrendingUpIcon className="w-3 h-3"/> : <ArrowTrendingDownIcon className="w-3 h-3"/>}
-                 {(Math.abs((data.targetPrice - data.currentPrice) / data.currentPrice * 100)).toFixed(2)}% Distance
+                 距離 {(Math.abs((data.targetPrice - data.currentPrice) / data.currentPrice * 100)).toFixed(2)}%
                </div>
             )}
           </div>
@@ -71,20 +90,21 @@ export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze,
         {/* Structure Section */}
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-mono text-gray-400 mb-1">WEEKLY STRUCTURE</label>
+            <label className="block text-xs font-mono text-gray-400 mb-1">本週結構趨勢 (Weekly Structure)</label>
             <select
               value={data.weeklyStructure}
               onChange={(e) => handleChange('weeklyStructure', e.target.value as Trend)}
               className="w-full bg-gray-950 border border-gray-700 rounded-lg py-2.5 px-4 text-white font-sans focus:ring-2 focus:ring-trade-accent outline-none"
             >
-              {Object.values(Trend).map((trend) => (
-                <option key={trend} value={trend}>{trend}</option>
-              ))}
+              <option value={Trend.Bullish}>看漲 (Bullish)</option>
+              <option value={Trend.Bearish}>看跌 (Bearish)</option>
+              <option value={Trend.RangeBound}>區間震盪 (Range Bound)</option>
+              <option value={Trend.Choppy}>不確定/波動 (Choppy)</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-gray-400 mb-1">FUNDING RATE (%)</label>
+            <label className="block text-xs font-mono text-gray-400 mb-1">資金費率 (Funding Rate %)</label>
             <div className="relative">
               <input
                 type="number"
@@ -95,31 +115,97 @@ export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze,
                 placeholder="0.0100"
               />
             </div>
-            <p className="text-[10px] text-gray-500 mt-1">Positive: Longs pay Shorts. Negative: Shorts pay Longs.</p>
+            <p className="text-[10px] text-gray-500 mt-1">正值: 多付空 (看跌信號?). 負值: 空付多 (看漲信號?)</p>
           </div>
         </div>
 
         {/* Coinglass / Heatmap Section */}
         <div className="md:col-span-2 space-y-4 border-t border-gray-800 pt-4 mt-2">
-            <h3 className="text-sm font-medium text-gray-300">Coinglass / Heatmap Context</h3>
+            <h3 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <PhotoIcon className="w-4 h-4 text-trade-accent"/>
+                Coinglass 清算熱力圖分析
+            </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-xs font-mono text-gray-400 mb-1">1-DAY LIQUIDATION CLUSTERS</label>
+                {/* 1 Day Heatmap */}
+                <div className="space-y-2">
+                    <label className="block text-xs font-mono text-gray-400">1天清算圖 (1-Day Heatmap)</label>
+                    
+                    {!data.heatmapImage1Day ? (
+                        <div 
+                            onClick={() => fileInputRef1.current?.click()}
+                            className="w-full h-32 border-2 border-dashed border-gray-700 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-trade-accent hover:bg-gray-800/50 transition-colors group"
+                        >
+                            <PhotoIcon className="w-8 h-8 text-gray-600 group-hover:text-trade-accent mb-2"/>
+                            <span className="text-xs text-gray-500 group-hover:text-gray-300">點擊上傳截圖</span>
+                            <input 
+                                ref={fileInputRef1}
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={(e) => handleImageUpload(e, 'heatmapImage1Day')}
+                            />
+                        </div>
+                    ) : (
+                        <div className="relative w-full h-32 rounded-lg overflow-hidden border border-gray-700 group">
+                            <img src={data.heatmapImage1Day} alt="1 Day Heatmap" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <button 
+                                    onClick={() => clearImage('heatmapImage1Day')}
+                                    className="p-1 bg-red-500/80 rounded-full text-white hover:bg-red-600"
+                                >
+                                    <XMarkIcon className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     <textarea
                         value={data.heatmap1DayContext}
                         onChange={(e) => handleChange('heatmap1DayContext', e.target.value)}
-                        className="w-full bg-gray-950 border border-gray-700 rounded-lg py-2 px-3 text-sm text-gray-300 h-24 focus:ring-2 focus:ring-trade-accent outline-none resize-none"
-                        placeholder="Describe bright yellow zones (e.g. 'Heavy short liqs at 68.2k, nothing below until 62k')"
+                        className="w-full bg-gray-950 border border-gray-700 rounded-lg py-2 px-3 text-sm text-gray-300 h-16 focus:ring-2 focus:ring-trade-accent outline-none resize-none"
+                        placeholder="或輸入文字描述 (例如: 95k 有大量亮黃色清算帶)"
                     />
                 </div>
-                <div>
-                    <label className="block text-xs font-mono text-gray-400 mb-1">7-DAY LIQUIDATION CLUSTERS</label>
+
+                {/* 7 Day Heatmap */}
+                <div className="space-y-2">
+                    <label className="block text-xs font-mono text-gray-400">7天清算圖 (7-Day Heatmap)</label>
+                    
+                    {!data.heatmapImage7Day ? (
+                        <div 
+                            onClick={() => fileInputRef7.current?.click()}
+                            className="w-full h-32 border-2 border-dashed border-gray-700 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-trade-accent hover:bg-gray-800/50 transition-colors group"
+                        >
+                            <PhotoIcon className="w-8 h-8 text-gray-600 group-hover:text-trade-accent mb-2"/>
+                            <span className="text-xs text-gray-500 group-hover:text-gray-300">點擊上傳截圖</span>
+                            <input 
+                                ref={fileInputRef7}
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={(e) => handleImageUpload(e, 'heatmapImage7Day')}
+                            />
+                        </div>
+                    ) : (
+                        <div className="relative w-full h-32 rounded-lg overflow-hidden border border-gray-700 group">
+                            <img src={data.heatmapImage7Day} alt="7 Day Heatmap" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <button 
+                                    onClick={() => clearImage('heatmapImage7Day')}
+                                    className="p-1 bg-red-500/80 rounded-full text-white hover:bg-red-600"
+                                >
+                                    <XMarkIcon className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     <textarea
                         value={data.heatmap7DayContext}
                         onChange={(e) => handleChange('heatmap7DayContext', e.target.value)}
-                        className="w-full bg-gray-950 border border-gray-700 rounded-lg py-2 px-3 text-sm text-gray-300 h-24 focus:ring-2 focus:ring-trade-accent outline-none resize-none"
-                        placeholder="Describe weekly levels (e.g. 'Massive long liquidation wall at 59k')"
+                        className="w-full bg-gray-950 border border-gray-700 rounded-lg py-2 px-3 text-sm text-gray-300 h-16 focus:ring-2 focus:ring-trade-accent outline-none resize-none"
+                        placeholder="或輸入文字描述 (例如: 下方 88k 有支撐)"
                     />
                 </div>
             </div>
@@ -144,11 +230,11 @@ export const InputCard: React.FC<InputCardProps> = ({ data, onChange, onAnalyze,
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              RUNNING SIMULATION...
+              正在進行 AI 運算...
             </>
           ) : (
             <>
-              CALCULATE PROBABILITY
+              計算目標概率 (Calculate Probability)
             </>
           )}
         </button>

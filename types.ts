@@ -15,8 +15,10 @@ export interface MarketData {
   targetPrice: number;
   fundingRate: number; // In percentage, e.g., 0.01
   weeklyStructure: Trend;
-  heatmap1DayContext: string;
-  heatmap7DayContext: string;
+  heatmap1DayContext: string; // Text description (optional if image provided)
+  heatmap7DayContext: string; // Text description (optional if image provided)
+  heatmapImage1Day?: string; // Base64 data for 1-day heatmap
+  heatmapImage7Day?: string; // Base64 data for 7-day heatmap
   additionalNotes?: string;
 }
 

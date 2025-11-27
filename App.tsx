@@ -17,6 +17,8 @@ const App: React.FC = () => {
     weeklyStructure: Trend.RangeBound,
     heatmap1DayContext: '',
     heatmap7DayContext: '',
+    heatmapImage1Day: undefined,
+    heatmapImage7Day: undefined,
     additionalNotes: ''
   });
 
@@ -27,7 +29,7 @@ const App: React.FC = () => {
       const data = await calculateProbability(marketData);
       setResult(data);
     } catch (error) {
-      alert("Analysis failed. Please check your API Key and inputs.");
+      alert("分析失敗，請檢查 API Key 或輸入數據。");
       console.error(error);
     } finally {
       setLoading(false);
@@ -45,10 +47,9 @@ const App: React.FC = () => {
                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
              </svg>
              <div>
-               <h4 className="text-blue-100 font-medium text-sm">Data Guidance</h4>
+               <h4 className="text-blue-100 font-medium text-sm">數據指引 (Data Guidance)</h4>
                <p className="text-blue-200/70 text-xs mt-1 leading-relaxed">
-                 For best results, describe the <b>Coinglass Liquidation Heatmap</b> visually. Mention where the "brightest" lines are. 
-                 Example: <i>"Thick yellow liquidation line at 68,500, thinner clusters at 63,200."</i>
+                 為了獲得最佳效果，請上傳 <b>Coinglass 清算熱力圖 (Liquidation Heatmap)</b> 截圖。AI 將自動識別圖中亮黃色的高槓桿清算帶，這通常會像磁鐵一樣吸引價格。
                </p>
              </div>
            </div>
