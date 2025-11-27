@@ -10,6 +10,8 @@ export enum TradeDirection {
   Short = 'Short'
 }
 
+export type Language = 'en' | 'zh-TW';
+
 export interface MarketData {
   currentPrice: number;
   targetPrice: number;

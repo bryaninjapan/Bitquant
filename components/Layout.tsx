@@ -1,10 +1,13 @@
 import React from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { t, language, setLanguage } = useLanguage();
+
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 selection:bg-trade-accent selection:text-white font-sans flex flex-col">
       {/* Header */}
@@ -15,16 +18,30 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               B
             </div>
             <span className="text-xl font-bold tracking-tight text-white">
-              Bit<span className="text-trade-accent">Quant</span>
+              {t.appTitle}<span className="text-trade-accent">Quant</span>
             </span>
             <span className="hidden sm:inline-block ml-2 px-2 py-0.5 rounded text-xs font-mono bg-gray-800 text-gray-400 border border-gray-700">
-              BTC-PERP MODEL
+              {t.appSubtitle}
             </span>
           </div>
           <div className="flex items-center gap-4">
+             <div className="flex items-center bg-gray-900 rounded-lg p-1 border border-gray-700">
+                <button 
+                  onClick={() => setLanguage('en')}
+                  className={`px-3 py-1 text-xs font-bold rounded transition-colors ${language === 'en' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+                >
+                  EN
+                </button>
+                <button 
+                  onClick={() => setLanguage('zh-TW')}
+                  className={`px-3 py-1 text-xs font-bold rounded transition-colors ${language === 'zh-TW' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+                >
+                  繁中
+                </button>
+             </div>
              <div className="hidden md:flex items-center text-xs text-gray-500 font-mono">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
-                SYSTEM ONLINE
+                {t.systemOnline}
              </div>
           </div>
         </div>
@@ -38,7 +55,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Footer */}
       <footer className="border-t border-gray-800 bg-gray-950 py-6">
         <div className="max-w-7xl mx-auto px-4 text-center text-xs text-gray-600 font-mono">
-          <p>POWERED BY GEMINI 2.5 FLASH • 僅供教育用途 • 非投資建議 (NOT FINANCIAL ADVICE)</p>
+          <p>{t.footerText}</p>
         </div>
       </footer>
     </div>

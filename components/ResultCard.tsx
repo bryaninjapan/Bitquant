@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { AnalysisResult } from '../types';
 import { ChartPieIcon, ShieldExclamationIcon, ListBulletIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ResultCardProps {
   result: AnalysisResult | null;
 }
 
 export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
+  const { t } = useLanguage();
   const [animatedProb, setAnimatedProb] = useState(0);
 
   useEffect(() => {
@@ -36,8 +38,8 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
     return (
       <div className="h-full bg-gray-900 border border-gray-800 rounded-xl p-8 flex flex-col items-center justify-center text-center text-gray-600 border-dashed">
         <ChartPieIcon className="w-16 h-16 mb-4 opacity-20" />
-        <h3 className="text-lg font-medium">等待數據 (Awaiting Data)</h3>
-        <p className="text-sm max-w-xs mt-2">請輸入市場參數並上傳熱力圖，運行模擬以生成概率分析。</p>
+        <h3 className="text-lg font-medium">{t.waitingTitle}</h3>
+        <p className="text-sm max-w-xs mt-2">{t.waitingDesc}</p>
       </div>
     );
   }
@@ -53,9 +55,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
     <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-2xl flex flex-col h-full animate-fade-in">
        {/* Top Status Bar */}
        <div className="bg-gray-950 px-6 py-3 border-b border-gray-800 flex justify-between items-center">
-         <span className="text-xs font-mono text-gray-500">OUTPUT GENERATED</span>
+         <span className="text-xs font-mono text-gray-500">{t.outputGenerated}</span>
          <span className={`text-xs font-bold px-2 py-1 rounded ${result.sentiment === 'Bullish' ? 'bg-emerald-500/10 text-emerald-500' : result.sentiment === 'Bearish' ? 'bg-rose-500/10 text-rose-500' : 'bg-gray-700/30 text-gray-400'}`}>
-            情緒: {result.sentiment.toUpperCase()}
+            {t.sentiment}: {result.sentiment.toUpperCase()}
          </span>
        </div>
 
@@ -63,7 +65,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
          
          {/* Probability Meter */}
          <div className="text-center">
-            <h3 className="text-sm font-mono text-gray-400 mb-2">達成目標概率 (Probability)</h3>
+            <h3 className="text-sm font-mono text-gray-400 mb-2">{t.probability}</h3>
             <div className="relative inline-flex items-center justify-center">
                 <svg className="w-48 h-48 transform -rotate-90">
                     <circle
@@ -100,7 +102,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
          <div className="bg-gray-950 rounded-lg p-5 border border-gray-800/50">
             <h4 className="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-2">
                 <ListBulletIcon className="w-4 h-4 text-trade-accent"/>
-                量化邏輯分析 (Rationale)
+                {t.rationale}
             </h4>
             <p className="text-sm text-gray-400 leading-relaxed">
                 {result.rationale}
@@ -112,7 +114,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
              <div className="bg-rose-950/10 border border-rose-900/20 rounded-lg p-4">
                 <h4 className="text-xs font-bold text-rose-400 mb-3 uppercase flex items-center gap-2">
                     <ShieldExclamationIcon className="w-4 h-4"/>
-                    風險因素 (Risks)
+                    {t.risks}
                 </h4>
                 <ul className="space-y-2">
                     {result.riskFactors.map((risk, i) => (
@@ -124,7 +126,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
              </div>
 
              <div className="bg-gray-950 border border-gray-800 rounded-lg p-4">
-                <h4 className="text-xs font-bold text-gray-300 mb-3 uppercase">關鍵點位 (Key Levels)</h4>
+                <h4 className="text-xs font-bold text-gray-300 mb-3 uppercase">{t.keyLevels}</h4>
                 <ul className="space-y-2">
                     {result.keyLevels.map((level, i) => (
                         <li key={i} className="text-xs font-mono text-trade-accent bg-gray-900 py-1 px-2 rounded">

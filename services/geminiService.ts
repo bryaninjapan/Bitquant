@@ -1,11 +1,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { MarketData, AnalysisResult } from "../types";
+import { MarketData, AnalysisResult, Language } from "../types";
 
 const apiKey = process.env.API_KEY || '';
 
 const ai = new GoogleGenAI({ apiKey });
 
-export const calculateProbability = async (data: MarketData): Promise<AnalysisResult> => {
+export const calculateProbability = async (data: MarketData, language: Language): Promise<AnalysisResult> => {
   if (!apiKey) {
     throw new Error("API Key is missing. Please check your environment configuration.");
   }
@@ -16,7 +16,7 @@ export const calculateProbability = async (data: MarketData): Promise<AnalysisRe
   // Construct parts for multimodal model
   const parts: any[] = [];
 
-  const prompt = `
+  const systemInstructionZh = `
     扮演一位專精於比特幣永續合約 (BTC.D) 的世界級量化加密貨幣分析師。
     
     你的任務是計算比特幣價格在接下來 24 小時內，從當前價格 $${data.currentPrice} 到達目標價格 $${data.targetPrice} (方向: ${direction}) 的概率 (0-100%)。
@@ -39,15 +39,38 @@ export const calculateProbability = async (data: MarketData): Promise<AnalysisRe
     3. 市場結構: 尊重每週趨勢，但承認日內均值回歸。
     4. 請根據這些因素的綜合情況，給出一個嚴格的概率百分比。
 
-    請以純 JSON 格式返回響應，符合此架構，並使用繁體中文 (Traditional Chinese) 填寫內容:
-    {
-      "probability": number, // integer 0-100
-      "sentiment": "Bullish" | "Bearish" | "Neutral",
-      "rationale": "string", // 一段簡潔的分析，解釋使用的量化邏輯。
-      "keyLevels": ["string"], // 3個關鍵支撐/阻力位的列表。
-      "riskFactors": ["string"] // 此交易設置的3個主要風險因素。
-    }
+    請以純 JSON 格式返回響應，符合此架構，並使用繁體中文 (Traditional Chinese) 填寫內容。
   `;
+
+  const systemInstructionEn = `
+    Act as a world-class quantitative crypto analyst specializing in Bitcoin Perpetual Contracts (BTC.D).
+
+    Your task is to calculate the probability (0-100%) of Bitcoin price reaching the target price $${data.targetPrice} from current price $${data.currentPrice} (Direction: ${direction}) within the next 24 hours.
+
+    Market Context Data:
+    - Current Price: $${data.currentPrice}
+    - Target Price: $${data.targetPrice} (Distance: ${distance}%)
+    - Funding Rate: ${data.fundingRate}% (Positive = Longs pay Shorts, Negative = Shorts pay Longs)
+    - Weekly Market Structure: ${data.weeklyStructure}
+    - Additional Notes: ${data.additionalNotes || 'None'}
+
+    Liquidation Heatmap Analysis:
+    - If images are provided, visually analyze the bright yellow/red zones which indicate high leverage liquidation clusters.
+    - 1-Day Context: ${data.heatmap1DayContext || 'No text provided, rely on image'}
+    - 7-Day Context: ${data.heatmap7DayContext || 'No text provided, rely on image'}
+
+    Analysis Logic:
+    1. Liquidation Heatmaps (Coinglass) act as magnets. Price often moves to high liquidation intensity areas (bright bands).
+    2. Funding Rate: High positive rates often mean longs are over-leveraged (contrarian bearish), negative rates mean shorts are over-leveraged (contrarian bullish), unless momentum is extremely strong.
+    3. Market Structure: Respect weekly trend but acknowledge intraday mean reversion.
+    4. Provide a strict probability percentage based on the synthesis of these factors.
+
+    Return response in pure JSON format matching the schema, and write the content in English.
+  `;
+
+  const prompt = language === 'zh-TW' ? systemInstructionZh : systemInstructionEn;
+  const imageLabel1 = language === 'zh-TW' ? "附圖 1: Coinglass 1天清算熱力圖" : "Attachment 1: Coinglass 1-Day Heatmap";
+  const imageLabel7 = language === 'zh-TW' ? "附圖 2: Coinglass 7天清算熱力圖" : "Attachment 2: Coinglass 7-Day Heatmap";
 
   parts.push({ text: prompt });
 
@@ -62,7 +85,7 @@ export const calculateProbability = async (data: MarketData): Promise<AnalysisRe
                 data: match[2]
             }
         });
-        parts.push({ text: "附圖 1: Coinglass 1天清算熱力圖" });
+        parts.push({ text: imageLabel1 });
     }
   }
 
@@ -75,13 +98,25 @@ export const calculateProbability = async (data: MarketData): Promise<AnalysisRe
                 data: match[2]
             }
         });
-        parts.push({ text: "附圖 2: Coinglass 7天清算熱力圖" });
+        parts.push({ text: imageLabel7 });
     }
   }
 
+  // Schema definition prompt appendage
+  parts.push({ text: `
+    JSON Structure:
+    {
+      "probability": number, // integer 0-100
+      "sentiment": "Bullish" | "Bearish" | "Neutral",
+      "rationale": "string", // Concise analysis explaining the quantitative logic.
+      "keyLevels": ["string"], // List of 3 key support/resistance levels.
+      "riskFactors": ["string"] // List of 3 main risk factors for this setup.
+    }
+  `});
+
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash', // Flash is excellent for multimodal/vision tasks and faster
+      model: 'gemini-2.5-flash',
       contents: { parts: parts },
       config: {
         responseMimeType: "application/json",
