@@ -30,6 +30,7 @@ jobs:
         run: npm run build
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'dummy_key_for_build' }}
+          GITHUB_PAGES: 'true'
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
