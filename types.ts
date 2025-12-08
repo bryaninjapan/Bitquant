@@ -37,3 +37,11 @@ export interface AnalysisResult {
 export interface GeminiError {
   message: string;
 }
+
+export interface SavedResult {
+  id: string;
+  timestamp: number;
+  asset: AssetType;
+  marketData: MarketData;
+  result: AnalysisResult;
+}

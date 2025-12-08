@@ -5,6 +5,7 @@ import { ResultCard } from './components/ResultCard';
 import { MarketData, Trend, AnalysisResult, AssetType } from './types';
 import { calculateProbability } from './services/geminiService';
 import { useLanguage } from './contexts/LanguageContext';
+import { saveResult } from './utils/storage';
 
 const App: React.FC = () => {
   const { t, language } = useLanguage();
@@ -36,6 +37,8 @@ const App: React.FC = () => {
     try {
       const data = await calculateProbability(marketData, language, asset);
       setResult(data);
+      // 自动保存结果到本地存储
+      saveResult(asset, marketData, data);
     } catch (error) {
       alert(t.errorAPI);
       console.error(error);

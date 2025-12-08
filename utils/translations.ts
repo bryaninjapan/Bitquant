@@ -43,7 +43,19 @@ export const translations = {
       ADA: "Cardano (ADA)"
     },
     assetSelector: "Select Asset Model",
-    errorAPI: "Analysis failed. Please check API Key or input data."
+    errorAPI: "Analysis failed. Please check API Key or input data.",
+    historyTitle: "Prediction History",
+    historyEmpty: "No saved predictions yet.",
+    historyCount: "Saved Predictions",
+    historyExport: "Export All",
+    historyClear: "Clear All",
+    historyDelete: "Delete",
+    historyView: "View Details",
+    historyDate: "Date",
+    historyAsset: "Asset",
+    historyProbability: "Probability",
+    historySaved: "Result saved automatically",
+    historyMaxReached: "Maximum 20 results saved. Oldest will be removed."
   },
   'zh-TW': {
     appTitle: "BitQuant",
@@ -87,6 +99,18 @@ export const translations = {
       ADA: "卡達諾 (ADA)"
     },
     assetSelector: "選擇資產模型",
-    errorAPI: "分析失敗，請檢查 API Key 或輸入數據。"
+    errorAPI: "分析失敗，請檢查 API Key 或輸入數據。",
+    historyTitle: "預測歷史記錄",
+    historyEmpty: "暫無保存的預測結果。",
+    historyCount: "已保存預測",
+    historyExport: "導出全部",
+    historyClear: "清空全部",
+    historyDelete: "刪除",
+    historyView: "查看詳情",
+    historyDate: "日期",
+    historyAsset: "資產",
+    historyProbability: "概率",
+    historySaved: "結果已自動保存",
+    historyMaxReached: "已達到最大保存數量（20條），最舊的記錄將被移除。"
   }
 };

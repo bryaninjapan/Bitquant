@@ -55,7 +55,10 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
     <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-2xl flex flex-col h-full animate-fade-in">
        {/* Top Status Bar */}
        <div className="bg-gray-950 px-6 py-3 border-b border-gray-800 flex justify-between items-center">
-         <span className="text-xs font-mono text-gray-500">{t.outputGenerated}</span>
+         <div className="flex items-center gap-2">
+           <span className="text-xs font-mono text-gray-500">{t.outputGenerated}</span>
+           <span className="text-[10px] text-emerald-400 font-mono">✓ {t.historySaved}</span>
+         </div>
          <span className={`text-xs font-bold px-2 py-1 rounded ${result.sentiment === 'Bullish' ? 'bg-emerald-500/10 text-emerald-500' : result.sentiment === 'Bearish' ? 'bg-rose-500/10 text-rose-500' : 'bg-gray-700/30 text-gray-400'}`}>
             {t.sentiment}: {result.sentiment.toUpperCase()}
          </span>
