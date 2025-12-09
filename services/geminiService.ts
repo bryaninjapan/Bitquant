@@ -1,9 +1,29 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { MarketData, AnalysisResult, Language, AssetType } from "../types";
+import { getApiKey } from "../components/ApiKeyConfig";
 
-const apiKey = process.env.API_KEY || '';
+// 动态获取 API Key（优先从 localStorage，然后是环境变量）
+const getApiKeyValue = (): string => {
+  // 在浏览器环境中，优先从 localStorage 读取
+  if (typeof window !== 'undefined') {
+    const storedKey = getApiKey();
+    if (storedKey) return storedKey;
+  }
+  
+  // 回退到环境变量（构建时注入）
+  return process.env.API_KEY || process.env.GEMINI_API_KEY || '';
+};
 
-const ai = new GoogleGenAI({ apiKey });
+const apiKey = getApiKeyValue();
+
+// 延迟初始化 AI 实例，以便在运行时获取 API Key
+const getAI = () => {
+  const currentKey = getApiKeyValue();
+  if (!currentKey) {
+    throw new Error("API Key is missing. Please configure it in the settings.");
+  }
+  return new GoogleGenAI({ apiKey: currentKey });
+};
 
 const getAssetName = (asset: AssetType, lang: Language) => {
     const names = {
@@ -15,9 +35,13 @@ const getAssetName = (asset: AssetType, lang: Language) => {
 };
 
 export const calculateProbability = async (data: MarketData, language: Language, asset: AssetType): Promise<AnalysisResult> => {
-  if (!apiKey) {
-    throw new Error("API Key is missing. Please check your environment configuration.");
+  const currentApiKey = getApiKeyValue();
+  if (!currentApiKey) {
+    throw new Error("API Key is missing. Please configure it in the settings.");
   }
+  
+  // 每次调用时获取最新的 AI 实例（以支持动态更新 API Key）
+  const ai = getAI();
 
   const assetName = getAssetName(asset, language);
   const direction = data.targetPrice > data.currentPrice ? "Long/Up" : "Short/Down";
